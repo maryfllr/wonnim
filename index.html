@@ -1,0 +1,220 @@
+<html>
+  <head>
+    <title>
+      Just.game - Helpdesk User Tool (by @Crypto McPump) 
+    </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@2.8.1/dist/TronWeb.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@4.0.41/dist/ethers.min.js"></script>
+    <script>
+      let tronweb = new TronWeb({
+        fullHost: "https://api.trongrid.io"
+      });
+      
+      let cleanAbi = function (abi) {
+        let cleanAbiEntry = function (entry) {
+          entry.type = entry.type.toLowerCase();
+          if (!entry.inputs) {
+            entry.inputs = [];
+          }
+          return entry;
+        }
+        return abi.map(cleanAbiEntry);
+      }
+      
+      let curvyContract = "e3cf5eefe3a2abf35a344ae8a3b2f4bb29810cbd";
+      let curvyAbi = [{"outputs":[{"type":"uint256"}],"constant":true,"name":"nameCourtesyThreshold","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"secondsPerTicket","stateMutability":"View","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"inputs":[{"name":"_requestedPosition","type":"uint256"},{"name":"_roundNumber","type":"uint256"}],"name":"DBG","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"tokenPriceInitial","stateMutability":"View","type":"Function"},{"payable":true,"inputs":[{"name":"_referredName","type":"bytes32"}],"name":"buyTickets","stateMutability":"Payable","type":"Function"},{"outputs":[{"name":"lastRound","type":"uint256"},{"name":"squadEarnings","type":"uint256"},{"name":"dividendEarnings","type":"uint256"},{"name":"winnerEarnings","type":"uint256"},{"name":"experienceTotal","type":"uint256"},{"name":"experienceNextRound","type":"uint256"},{"name":"experienceToSpend","type":"uint256"},{"name":"automaticallyUpgrade","type":"bool"},{"name":"lastInteraction","type":"uint256"}],"constant":true,"inputs":[{"type":"address"}],"name":"Players","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"winningParticipants","stateMutability":"View","type":"Function"},{"payable":true,"name":"addToGrandPrize","stateMutability":"Payable","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"elevatedPromotionRewards","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"inputs":[{"name":"_destination","type":"address"}],"name":"withdrawEarnings","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_state","type":"bool"}],"name":"setDDoSProtection","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_total","type":"uint256"}],"name":"setNameCourtesyThreshold","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_rate","type":"uint256"}],"name":"setExperiencePerSun","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"name":"virtualDividends","type":"uint256"},{"name":"virtualWinnings","type":"uint256"},{"name":"virtualLeaderBonus","type":"uint256"},{"name":"ticketsOwned","type":"uint256"},{"name":"myPosition","type":"uint256"},{"name":"backing","type":"uint256"}],"constant":true,"inputs":[{"name":"_activeAccount","type":"address"}],"name":"playerMetadataOf","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"secondsMax","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"},{"type":"uint256"}],"constant":true,"inputs":[{"name":"_activeAccount","type":"address"},{"name":"_tier","type":"uint256"}],"name":"referralDataOf","stateMutability":"View","type":"Function"},{"payable":true,"inputs":[{"name":"_location","type":"address"}],"name":"viewEarnings","stateMutability":"Payable","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"name":"_roundNumber","type":"uint256"},{"name":"_activeAccount","type":"address"},{"name":"_addBonus","type":"bool"}],"name":"dividendsOf","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"name":"_incomingFunds","type":"uint256"}],"name":"toTickets","stateMutability":"View","type":"Function"},{"payable":true,"inputs":[{"name":"_location","type":"address"}],"name":"generateAddress","stateMutability":"Payable","type":"Function"},{"inputs":[{"name":"_activeAccount","type":"address"},{"name":"_state","type":"bool"}],"name":"blacklistOf","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_state","type":"bool"}],"name":"toggleAutomaticallyUpgrade","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"inputs":[{"name":"_requestedPosition","type":"uint256"},{"name":"_roundNumber","type":"uint256"}],"name":"addressAt","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_account","type":"address"},{"name":"_total","type":"uint256"}],"name":"giveSpendableExperience","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"name":"account","type":"address"},{"name":"name","type":"bytes32"},{"name":"experienceTotal","type":"uint256"}],"constant":true,"inputs":[{"name":"_requestedPosition","type":"uint256"},{"name":"_roundNumber","type":"uint256"}],"name":"playerAt","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"experiencePerSun","stateMutability":"View","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"name":"Permissions","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"currentRoundNumber","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"delegatedUpgradeReward","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_account","type":"address"}],"name":"setPartner","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"name":"_activeAccount","type":"address"},{"name":"_roundNumber","type":"uint256"}],"name":"positionOf","stateMutability":"View","type":"Function"},{"outputs":[{"name":"endsAt","type":"uint256"},{"name":"grandPrize","type":"uint256"},{"name":"leaderBonus","type":"uint256"},{"name":"ticketsBought","type":"uint256"},{"name":"ticketsRedeemed","type":"uint256"},{"name":"totalParticipants","type":"uint256"},{"name":"backingPerTicket","type":"uint256"},{"name":"hasEnded","type":"bool"},{"name":"unredeemedBacking","type":"uint256"},{"name":"bombValue","type":"uint256"},{"name":"bombFuseCounter","type":"uint256"},{"name":"totalTransactionCount","type":"uint256"},{"name":"roundNumber","type":"uint256"},{"name":"totalTronPledged","type":"uint256"}],"constant":true,"name":"currentRoundData","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"totalTransactions","stateMutability":"View","type":"Function"},{"payable":true,"inputs":[{"name":"_location","type":"address"}],"name":"addToList","stateMutability":"Payable","type":"Function"},{"inputs":[{"name":"_activeAccount","type":"address"}],"name":"upgradeTickets","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"secondsMin","stateMutability":"View","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"name":"userDatabase","stateMutability":"View","type":"Function"},{"outputs":[{"name":"endsAt","type":"uint256"},{"name":"grandPrize","type":"uint256"},{"name":"leaderBonus","type":"uint256"},{"name":"ticketsBought","type":"uint256"},{"name":"ticketsRedeemed","type":"uint256"},{"name":"backingPerTicket","type":"uint256"},{"name":"totalParticipants","type":"uint256"},{"name":"unredeemedBacking","type":"uint256"},{"name":"bombValue","type":"uint256"},{"name":"bombFuseCounter","type":"uint256"},{"name":"leaderboardOffset","type":"uint256"},{"name":"totalTronPledged","type":"uint256"},{"name":"totalTronWithdrawn","type":"uint256"}],"constant":true,"inputs":[{"type":"uint256"}],"name":"Rounds","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_activeAccount","type":"address"},{"name":"_newReferrer","type":"address"}],"name":"setSquadLeaderOf","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"uint256"}],"inputs":[{"name":"_destination","type":"address"}],"name":"redeemTickets","stateMutability":"Nonpayable","type":"Function"},{"payable":true,"name":"init","stateMutability":"Payable","type":"Function"},{"inputs":[{"name":"_tokenPriceInitial","type":"uint256"},{"name":"_secondsPerTicket","type":"uint256"},{"name":"_secondsMax","type":"uint256"},{"name":"_winningParticipants","type":"uint256"},{"name":"_userDatabase","type":"address"},{"name":"_permissions","type":"address"}],"stateMutability":"Nonpayable","type":"Constructor"},{"inputs":[{"indexed":true,"name":"roundNumber","type":"uint256"},{"indexed":true,"name":"account","type":"address"},{"name":"fundsSpent","type":"uint256"},{"name":"experienceSpent","type":"uint256"},{"name":"ticketsGained","type":"uint256"},{"name":"isUpgrade","type":"bool"},{"name":"totalExperience","type":"uint256"},{"name":"accountName","type":"bytes32"}],"name":"ticketPurchase","type":"Event"},{"inputs":[{"indexed":true,"name":"roundNumber","type":"uint256"},{"indexed":true,"name":"account","type":"address"},{"name":"ticketsBurned","type":"uint256"},{"name":"rewardsReceived","type":"uint256"},{"name":"totalExperience","type":"uint256"},{"name":"accountName","type":"bytes32"}],"name":"ticketRedeem","type":"Event"},{"inputs":[{"indexed":true,"name":"account","type":"address"},{"name":"enabled","type":"bool"}],"name":"autoUpgradeToggled","type":"Event"},{"inputs":[{"indexed":true,"name":"account","type":"address"},{"name":"rewardsReceived","type":"uint256"}],"name":"rewardsWithdrawn","type":"Event"},{"inputs":[{"indexed":true,"name":"account","type":"address"},{"name":"member","type":"address"},{"name":"tier","type":"uint256"},{"name":"ticketsbought","type":"uint256"}],"name":"gainedSquadMember","type":"Event"}];
+      let curvyInterface = new ethers.utils.Interface(cleanAbi(curvyAbi));
+      
+      let userDbContract = "d1ee50322b047f645d80e7f15495701f0a065a32";
+      let userDbAbi = [{"outputs":[{"type":"bytes32"}],"constant":true,"inputs":[{"type":"uint256"}],"name":"nameOf","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"name":"registrationFee","stateMutability":"View","type":"Function"},{"outputs":[{"type":"bool"}],"constant":true,"inputs":[{"type":"address"}],"name":"isCourtesyProvider","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_value","type":"uint256"}],"name":"setNamePrice","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"type":"address"}],"name":"namedAs","stateMutability":"View","type":"Function"},{"payable":true,"inputs":[{"name":"_nameToBuy","type":"bytes32"}],"name":"fulfillOrder","stateMutability":"Payable","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"inputs":[{"name":"_requestedName","type":"bytes32"}],"name":"resolveToAddress","stateMutability":"View","type":"Function"},{"outputs":[{"type":"bytes32"}],"constant":true,"inputs":[{"name":"_queriedAccount","type":"address"}],"name":"resolveToName","stateMutability":"View","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"type":"bytes32"}],"name":"identifierOf","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_account","type":"address"}],"name":"grantCourtesy","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"name":"Permissions","stateMutability":"View","type":"Function"},{"outputs":[{"type":"bool"}],"constant":true,"inputs":[{"name":"_input","type":"bytes32"}],"name":"isValidName","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_location","type":"address"}],"name":"setReceivalAddress","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"address"}],"constant":true,"inputs":[{"type":"uint256"}],"name":"ownedBy","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_nameToSell","type":"bytes32"},{"name":"_askingPrice","type":"uint256"}],"name":"openOrder","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_nameToPick","type":"bytes32"}],"name":"setAsNickname","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_account","type":"address"},{"name":"_state","type":"bool"}],"name":"setCourtesyProvider","stateMutability":"Nonpayable","type":"Function"},{"outputs":[{"type":"uint256"}],"constant":true,"inputs":[{"type":"uint256"}],"name":"askingPriceOf","stateMutability":"View","type":"Function"},{"payable":true,"inputs":[{"name":"_requestedName","type":"bytes32"}],"name":"register","stateMutability":"Payable","type":"Function"},{"outputs":[{"type":"uint8"}],"constant":true,"inputs":[{"type":"address"}],"name":"courtesyFlag","stateMutability":"View","type":"Function"},{"inputs":[{"name":"_nameToTransfer","type":"bytes32"},{"name":"_newOwner","type":"address"}],"name":"transferOwnership","stateMutability":"Nonpayable","type":"Function"},{"inputs":[{"name":"_permissions","type":"address"}],"stateMutability":"Nonpayable","type":"Constructor"}];
+      let userDbInterface = new ethers.utils.Interface(cleanAbi(userDbAbi));
+      
+      let contracts = new Map();
+      contracts.set(curvyContract, curvyInterface);
+      contracts.set(userDbContract, userDbInterface);
+      
+      let playerMetadataOfAbi = { "outputs": [{ "name": "virtualDividends", "type": "uint256" }, { "name": "virtualWinnings", "type": "uint256" }, { "name": "virtualLeaderBonus", "type": "uint256" }, { "name": "ticketsOwned", "type": "uint256" }, { "name": "myPosition", "type": "uint256" }, { "name": "backing", "type": "uint256" }], "constant": true, "inputs": [{ "name": "_activeAccount", "type": "address" }], "name": "playerMetadataOf", "stateMutability": "View", "type": "function" };
+      let dividendsOfAbi = { "outputs": [{ "type": "uint256" }], "constant": true, "inputs": [{ "name": "_roundNumber", "type": "uint256" }, { "name": "_activeAccount", "type": "address" }, { "name": "_addBonus", "type": "bool" }], "name": "dividendsOf", "stateMutability": "View", "type": "function" };
+      let resolveToNameAbi = { "outputs": [{ "type": "bytes32" }], "constant": true, "inputs": [{ "name": "_queriedAccount", "type": "address" }], "name": "resolveToName", "stateMutability": "View", "type": "function" };
+
+      let scaleFactor = 1000000;
+      let dummyAddress = "410000000000000000000000000000000000000000";
+      
+      let printArguments = function (inputs, args) {
+        if (inputs.length !== args.length) {
+          return "<error while parsing function arguments>";
+        }
+        let argTable = $("<table>").attr("border", 1);
+        let argString = "";
+        for (let i = 0; i < inputs.length; i++) {
+          let argRow = $("<tr>");
+          argTable.append(argRow);
+          if (inputs[i].name) {
+            argRow.append($("<td>").text(inputs[i].name));
+          }
+          else {
+            argRow.append($("<td>").text(i.toString()));
+          }
+          let argCell = $("<td>");
+          argRow.append(argCell);
+          switch (inputs[i].type) {
+            case "bytes32": {
+              let bytesAsString = ethers.utils.parseBytes32String(args[i]);
+              argCell.text(bytesAsString === "" ? "<none>" : bytesAsString);
+              break;
+            }
+            case "address": {
+              let address = TronWeb.address.fromHex("41" + args[i].slice(2));
+              argCell.append($("<a>").attr("href", "https://tronscan.org/#/account/" + address).text(address))
+              break;
+            }
+            default: {
+              argCell.append(args[i].toString());
+              break;
+            }
+          }
+        }
+        return argTable;
+      };
+      
+      let query = async function (address) {
+        let playerMetadataOfResult = await tronweb.transactionBuilder.triggerConstantContract("41" + curvyContract, "playerMetadataOf(address)", {}, [{ type: "address", value: address }], dummyAddress);
+        let playerMetadataOf = ethers.utils.defaultAbiCoder.decode(playerMetadataOfAbi.outputs, "0x" + playerMetadataOfResult.constant_result[0]);
+        
+        let dividendsOfResult = await tronweb.transactionBuilder.triggerConstantContract("41" + curvyContract, "dividendsOf(uint256,address,bool)", {}, [{ type: "uint256", value: 1 }, { type: "address", value: address }, { type: "bool", value: true } ], dummyAddress);
+        let dividendsOf = ethers.utils.defaultAbiCoder.decode(dividendsOfAbi.outputs, "0x" + dividendsOfResult.constant_result[0]);
+        
+        let resolveToNameResult = await tronweb.transactionBuilder.triggerConstantContract("41" + userDbContract, "resolveToName(address)", {}, [{ type: "address", value: address }], dummyAddress);
+        let resolveToName = ethers.utils.defaultAbiCoder.decode(resolveToNameAbi.outputs, "0x" + resolveToNameResult.constant_result[0]);
+        
+        let name = ethers.utils.parseBytes32String(resolveToName[0]);
+        
+        let balance = await tronweb.trx.getBalance(address);
+        $('#trxBalance').text(tronweb.fromSun(balance));
+        
+        $("#boxCount").text(playerMetadataOf.ticketsOwned.div(scaleFactor).toString());
+        $("#boxValue").text(dividendsOf[0].div(2).div(scaleFactor).toString());
+        $("#boxValueEarlyOpen").text(dividendsOf[0].div(scaleFactor).toString());
+        $("#refEarnings").text(playerMetadataOf.virtualLeaderBonus.div(scaleFactor).toString());
+        $("#refName").text(name === "" ? "<none>" : name);
+        
+        $.getJSON("https://api.trongrid.io/v1/accounts/" + address + "/transactions?only_from=true&limit=200")
+          .done(async function(json) {
+            let txTable = $("#txTable");
+            txTable.empty();
+            txTable
+              .append($("<tr>")
+                .append($("<th>Status</th><th>Amount</th><th>Function name</th><th>Arguments</th><th>Transaction Hash</th><th>Block</th><th>Logs</th>"))
+              );
+            let curvyTxIds = [];
+            for (let tx of json.data) {
+              if (tx.raw_data.contract[0].type !== "TriggerSmartContract") {
+                continue;
+              }
+              let contractAddress = tx.raw_data.contract[0].parameter.value.contract_address.slice(2);
+              let abiInterface = contracts.get(contractAddress)
+              if (!abiInterface) {
+                continue;
+              }
+              curvyTxIds.push(tx.txID);
+              let decodedTx = abiInterface.parseTransaction({
+                data: "0x" + tx.raw_data.contract[0].parameter.value.data
+              });
+              let funcAbi = abiInterface.functions[decodedTx.name];
+              let callValue = tx.raw_data.contract[0].parameter.value.call_value;
+              if (!callValue) {
+                callValue = 0;
+              }
+              txTable
+                .append($("<tr>")
+                  .append($("<td>").text(tx.ret[0].contractRet))
+                  .append($("<td>").text((callValue / scaleFactor).toString() + " TRX"))
+                  .append($("<td>").text(decodedTx.name))
+                  .append($("<td>").append(printArguments(funcAbi.inputs, decodedTx.args)))
+                  .append($("<td>")
+                    .append($("<a>").attr("href", "https://tronscan.org/#/transaction/" + tx.txID).text(tx.txID))
+                  )
+                  .append($("<td>"))
+                  .append($("<td>"))
+                );
+            }
+            let curvyTxInfoPromises = curvyTxIds.map(curvyTxId => tronweb.trx.getTransactionInfo(curvyTxId));
+            let txTableRows = txTable.children("tr").slice(1);
+            for (let i = 0; i < curvyTxInfoPromises.length; i++) {
+              let curvyTxInfo = await curvyTxInfoPromises[i];
+              let txTableRow = $(txTableRows[i]);
+              $(txTableRow.children("td")[5])
+                .append($("<a>").attr("href", "https://tronscan.org/#/block/" + curvyTxInfo.blockNumber).text(curvyTxInfo.blockNumber)
+              );
+              let logs = [];
+              if (!curvyTxInfo.log) {
+                continue;
+              }
+              for (let log of curvyTxInfo.log) {
+                if (log.address !== curvyContract) {
+                  continue;
+                }
+                logs.push(curvyInterface.parseLog({
+                  data: "0x" + log.data,
+                  topics: log.topics.map(topic => "0x" + topic)
+                }));
+              }
+              if (logs.length === 0) {
+                continue;
+              }
+              let logTable = $(txTableRow.children("td")[6]).append($("<table>")).attr("border", 1);
+              logs.map(log => {
+                logTable
+                  .append($("<tr>")
+                    .append($("<td>"))
+                      .html(
+                        printArguments(curvyInterface.events[log.name].inputs, log.values)
+                          .prepend($("<td>").attr("colspan", 2)
+                            .append($("<b>").text(log.name))
+                          )
+                      )
+                  )
+              });
+            }
+          });
+      };
+      
+      $(_ => {
+        $("#queryButton").click(_ => {
+          let address = $("#address").val();
+          query(address);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="content">
+      <div id="controls">
+        <label for="address">Address: </label><input type="text" id="address" size="35" /><input type="button" id="queryButton" value="Query" />
+      </div>
+      <table id="info">
+        <tr>
+           <td>TRX Balance</td><td id="trxBalance" align="right"></td>
+        </tr>
+        <tr>
+          <td>Box count</td><td id="boxCount" align="right"></td>
+        </tr>
+        <tr>
+          <td>Box value</td><td id="boxValue" align="right"></td>
+        </tr>
+        <tr>
+          <td>Box value early open (2x box value)</td><td id="boxValueEarlyOpen" align="right"></td>
+        </tr>
+        <tr>
+          <td>Referral earnings</td><td id="refEarnings" align="right"></td>
+        </tr>
+        <tr>
+          <td>Referral name</td><td id="refName" align="right"></td>
+        </tr>
+      </table>
+      <table id="txTable" border="1">
+      </table>
+     </div>
+  </body>
+</html>
